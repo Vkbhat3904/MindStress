@@ -1,0 +1,46 @@
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# IDE and OS files
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+
+# Local ML / generated artifacts
+chroma_db/
+xai_plots/
+pipeline_test_result.json
+interventions_log.jsonl
+training_log.txt
+test_output.txt
+test_explain_log.txt
+
+# Generated sample data
+test_samples/real_pred_*.json
+test_samples/sample*.json
+

@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>MindfulStress Hub – AI-Powered Stress Management & Analysis</title>
+  <meta name="description" content="Advanced stress detection with personalized mindfulness interventions powered by multimodal AI and evidence-based techniques."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      --bg:#03060f;
+      --bg2:#070d1a;
+      --surface:rgba(255,255,255,0.03);
+      --surface2:rgba(255,255,255,0.06);
+      --border:rgba(99,179,237,0.15);
+      --border2:rgba(99,179,237,0.25);
+      --accent:#4f9eff;
+      --accent2:#00e5c8;
+      --c0:#38bdf8;   /* Very Low  */
+      --c1:#00e5c8;   /* Low       */
+      --c2:#fbbf24;   /* Moderate  */
+      --c3:#f97316;   /* High      */
+      --c4:#ff4d6a;   /* Very High */
+      --text:#dbeafe;
+      --muted:#4a6fa5;
+      --glow-blue:0 0 40px rgba(79,158,255,0.25);
+      --glow-teal:0 0 40px rgba(0,229,200,0.2);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      font-family:'Inter',sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    /* ──── Animated background ──────────────────────── */
+    .bg-layer{
+      position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+    }
+    .bg-layer::before{
+      content:'';position:absolute;inset:0;
+      background:
+        radial-gradient(ellipse 70% 50% at 10% 5%,  rgba(79,158,255,0.12) 0%,transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 95%, rgba(0,229,200,0.09)  0%,transparent 60%),
+        radial-gradient(ellipse 60% 60% at 50% 50%, rgba(3,6,15,0.8)      0%,transparent 100%),
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="zen" patternUnits="userSpaceOnUse" width="20" height="20"><circle cx="10" cy="10" r="1" fill="rgba(79,158,255,0.03)"/><path d="M5,5 Q10,0 15,5 Q20,10 15,15 Q10,20 5,15 Q0,10 5,5" stroke="rgba(0,229,200,0.02)" stroke-width="0.5" fill="none"/></pattern></defs><rect width="100" height="100" fill="url(%23zen)"/></svg>');
+    }
+    /* Grid overlay */
+    .bg-grid{
+      position:absolute;inset:0;
+      background-image:
+        linear-gradient(rgba(79,158,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79,158,255,0.04) 1px, transparent 1px);
+      background-size:60px 60px;
+      animation:gridPan 20s linear infinite;
+    }
+    @keyframes gridPan{0%{transform:translateY(0)}100%{transform:translateY(60px)}}
+
+    /* Floating zen elements */
+    .zen-elements{
+      position:absolute;inset:0;pointer-events:none;z-index:1;
+    }
+    .zen-element{
+      position:absolute;border-radius:50%;
+      background:radial-gradient(circle, rgba(79,158,255,0.1) 0%, transparent 70%);
+      animation:zenFloat 15s ease-in-out infinite;
+    }
+    .zen-element:nth-child(1){
+      width:120px;height:120px;top:10%;left:10%;
+      animation-delay:0s;
+    }
+    .zen-element:nth-child(2){
+      width:80px;height:80px;top:60%;right:15%;
+      animation-delay:5s;
+    }
+    .zen-element:nth-child(3){
+      width:100px;height:100px;bottom:20%;left:70%;
+      animation-delay:10s;
+    }
+    @keyframes zenFloat{
+      0%,100%{transform:translateY(0px) rotate(0deg);opacity:0.3;}
+      50%{transform:translateY(-20px) rotate(180deg);opacity:0.6;}
+    }
+
+    /* EEG waveform banner */
+    .eeg-banner{
+      position:fixed;bottom:0;left:0;right:0;height:80px;
+      z-index:0;pointer-events:none;opacity:0.18;
+    }
+
+    /* ──── Layout ────────────────────────────────────── */
+    .page{position:relative;z-index:1;}
+
+    /* ──── Header ────────────────────────────────────── */
+    header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:1rem 2.5rem;
+      background:rgba(3,6,15,0.9);
+      border-bottom:1px solid var(--border);
+      backdrop-filter:blur(24px);
+      position:sticky;top:0;z-index:100;
+    }
+    .logo{display:flex;align-items:center;gap:1rem;}
+    .brain-icon{
+      width:44px;height:44px;border-radius:12px;
+      background:linear-gradient(135deg,#1a3a6b,#0a4a8c);
+      border:1px solid rgba(79,158,255,0.4);
+      display:flex;align-items:center;justify-content:center;
+      font-size:22px;
+      box-shadow:var(--glow-blue),inset 0 1px 0 rgba(255,255,255,0.1);
+      animation:brainPulse 3s ease-in-out infinite;
+    }
+    @keyframes brainPulse{0%,100%{box-shadow:var(--glow-blue),inset 0 1px 0 rgba(255,255,255,0.1)}50%{box-shadow:0 0 60px rgba(79,158,255,0.45),inset 0 1px 0 rgba(255,255,255,0.1)}}
+    .logo-text h1{font-size:1.1rem;font-weight:800;letter-spacing:-0.03em;color:#fff;}
+    .logo-text p{font-size:.7rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+
+    .header-right{display:flex;align-items:center;gap:1.5rem;}
+    .live-badge{
+      display:flex;align-items:center;gap:.5rem;
+      background:rgba(0,229,200,0.08);
+      border:1px solid rgba(0,229,200,0.3);
+      border-radius:20px;padding:.35rem .9rem;
+      font-size:.75rem;font-weight:600;color:var(--accent2);
+    }
+    .pulse-dot{
+      width:7px;height:7px;border-radius:50%;background:var(--accent2);
+      box-shadow:0 0 8px var(--accent2);
+      animation:dotPulse 2s ease-in-out infinite;
+    }
+    @keyframes dotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(0.7)}}
+
+    /* ──── Hero EEG Bar ──────────────────────────────── */
+    .eeg-hero{
+      background:rgba(3,6,15,0.8);
+      border-bottom:1px solid var(--border);
+      padding:.6rem 2.5rem;
+      display:flex;align-items:center;gap:1.5rem;
+    }
+    .eeg-label{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);white-space:nowrap;}
+    .eeg-live-bars{
+      display:flex;align-items:flex-end;gap:3px;height:36px;flex:1;
+    }
+    .eeg-live-bar{
+      width:4px;border-radius:2px;
+      background:linear-gradient(to top,var(--accent),var(--accent2));
+      opacity:.7;
+    }
+    .channel-labels{display:flex;gap:1.5rem;font-size:.65rem;color:var(--muted);}
+    .channel-tag{display:flex;align-items:center;gap:.35rem;}
+    .channel-dot{width:6px;height:6px;border-radius:50%;}
+
+    /* ──── Main ──────────────────────────────────────── */
+    main{max-width:1240px;margin:0 auto;padding:2rem 2rem 5rem;}
+
+    /* ──── Section Title ─────────────────────────────── */
+    .sec-title{
+      font-size:.65rem;font-weight:700;text-transform:uppercase;
+      letter-spacing:.15em;color:var(--muted);margin-bottom:1rem;
+      display:flex;align-items:center;gap:.6rem;
+    }
+    .sec-title::before{
+      content:'';display:inline-block;width:14px;height:2px;
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+      border-radius:1px;
+    }
+
+    /* ──── Cards ─────────────────────────────────────── */
+    .card{
+      background:linear-gradient(135deg,rgba(255,255,255,0.035),rgba(255,255,255,0.015));
+      border:1px solid var(--border);
+      border-radius:16px;padding:1.5rem;
+      backdrop-filter:blur(16px);
+      transition:border-color .3s,box-shadow .3s;
+      position:relative;overflow:hidden;
+    }
+    .card::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(79,158,255,0.4),transparent);
+    }
+    .card:hover{border-color:var(--border2);box-shadow:var(--glow-blue);}
+
+    /* ──── Upload Zone ───────────────────────────────── */
+    .upload-zone{
+      border:2px dashed var(--border);border-radius:14px;
+      padding:2rem;text-align:center;cursor:pointer;
+      transition:all .3s;position:relative;
+      background:linear-gradient(135deg,rgba(79,158,255,0.03),rgba(0,229,200,0.02));
+    }
+    .upload-zone:hover{
+      border-color:var(--accent);
+      background:linear-gradient(135deg,rgba(79,158,255,0.08),rgba(0,229,200,0.05));
+      box-shadow:var(--glow-blue);
+    }
+    .upload-zone input[type="file"]{
+      position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+    }
+    .upload-icon-wrap{
+      width:56px;height:56px;border-radius:50%;margin:0 auto .75rem;
+      background:linear-gradient(135deg,rgba(79,158,255,0.15),rgba(0,229,200,0.1));
+      border:1px solid var(--border2);
+      display:flex;align-items:center;justify-content:center;font-size:24px;
+    }
+    .upload-title{font-size:1rem;font-weight:700;margin-bottom:.4rem;color:#fff;}
+    .upload-hint{font-size:.78rem;color:var(--muted);line-height:1.7;}
+    .upload-hint code{
+      font-family:'JetBrains Mono',monospace;font-size:.7rem;
+      background:rgba(79,158,255,0.1);border:1px solid rgba(79,158,255,0.2);
+      padding:.05rem .35rem;border-radius:4px;color:var(--accent);
+    }
+    #fileNameDisplay{
+      margin-top:.75rem;font-size:.82rem;font-weight:600;color:var(--accent2);
+      display:none;
+      background:rgba(0,229,200,0.08);border:1px solid rgba(0,229,200,0.25);
+      border-radius:8px;padding:.5rem 1rem;display:none;
+      align-items:center;gap:.5rem;justify-content:center;
+    }
+
+    /* ──── Signal Input ──────────────────────────────── */
+    .input-tabs{display:flex;gap:.4rem;margin-bottom:1.2rem;}
+    .tab-btn{
+      padding:.4rem .9rem;border-radius:8px;
+      border:1px solid var(--border);
+      background:transparent;color:var(--muted);
+      font-family:inherit;font-size:.8rem;font-weight:500;cursor:pointer;
+      transition:all .2s;
+    }
+    .tab-btn.active{
+      background:linear-gradient(135deg,rgba(79,158,255,0.2),rgba(0,229,200,0.1));
+      border-color:var(--accent);color:var(--accent);
+    }
+    .feature-grid{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:.4rem;
+      max-height:270px;overflow-y:auto;padding:.5rem;
+      scrollbar-width:thin;scrollbar-color:var(--accent) transparent;
+    }
+    .feature-input{
+      background:rgba(255,255,255,0.04);border:1px solid var(--border);
+      border-radius:6px;padding:.3rem .4rem;
+      color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.68rem;
+      text-align:center;width:100%;transition:border-color .2s;
+    }
+    .feature-input:focus{outline:none;border-color:var(--accent);}
+    .feature-label{font-size:.58rem;color:var(--muted);text-align:center;margin-bottom:2px;}
+    .feat-group{display:flex;flex-direction:column;}
+    #jsonPasteArea{
+      width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--border);
+      color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.78rem;
+      border-radius:10px;padding:1rem;resize:vertical;min-height:130px;
+      transition:border-color .2s;
+    }
+    #jsonPasteArea:focus{outline:none;border-color:var(--accent);}
+
+    /* ──── Buttons ───────────────────────────────────── */
+    .btn{
+      padding:.7rem 1.5rem;border-radius:10px;border:none;cursor:pointer;
+      font-family:inherit;font-size:.88rem;font-weight:600;transition:all .2s;
+    }
+    .btn-predict{
+      background:linear-gradient(135deg,#1a56db,#4f9eff);
+      color:#fff;box-shadow:0 4px 20px rgba(79,158,255,0.35);
+    }
+    .btn-predict:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(79,158,255,0.5);}
+    .btn-explain{
+      background:linear-gradient(135deg,#0a6e5c,#00e5c8);
+      color:#fff;box-shadow:0 4px 20px rgba(0,229,200,0.3);
+    }
+    .btn-explain:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,229,200,0.45);}
+    .btn-secondary{background:var(--surface2);border:1px solid var(--border);color:var(--muted);}
+    .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;}
+    .spinner{
+      display:none;width:16px;height:16px;
+      border:2px solid rgba(255,255,255,0.2);border-top-color:#fff;
+      border-radius:50%;animation:spin .7s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ──── Results grid ──────────────────────────────── */
+    .results-grid{display:grid;grid-template-columns:1fr 1fr 2fr;gap:1.25rem;margin-bottom:1.5rem;}
+
+    /* ──── Stress Meter ──────────────────────────────── */
+    .stress-meter-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;}
+    .stress-arc{position:relative;width:180px;height:100px;}
+    canvas#arcCanvas{display:block;}
+    .arc-center-val{
+      position:absolute;bottom:4px;left:50%;transform:translateX(-50%);
+      font-size:1.8rem;font-weight:800;letter-spacing:-.03em;
+      text-shadow:0 0 20px currentColor;transition:color .5s;
+    }
+    .arc-label{font-size:.7rem;color:var(--muted);text-align:center;}
+
+    /* ──── Level Badge ───────────────────────────────── */
+    .level-display{display:flex;flex-direction:column;align-items:center;justify-content:center;}
+    .level-badge{
+      font-size:1.4rem;font-weight:900;padding:.6rem 1.6rem;
+      border-radius:14px;letter-spacing:-.02em;
+      transition:all .5s;text-align:center;
+      position:relative;overflow:hidden;
+    }
+    .level-badge::after{
+      content:'';position:absolute;inset:0;
+      background:currentColor;opacity:.08;border-radius:inherit;
+    }
+    .level-badge.c0{color:var(--c0);border:2px solid var(--c0);box-shadow:0 0 25px rgba(56,189,248,.3);}
+    .level-badge.c1{color:var(--c1);border:2px solid var(--c1);box-shadow:0 0 25px rgba(0,229,200,.3);}
+    .level-badge.c2{color:var(--c2);border:2px solid var(--c2);box-shadow:0 0 25px rgba(251,191,36,.3);}
+    .level-badge.c3{color:var(--c3);border:2px solid var(--c3);box-shadow:0 0 25px rgba(249,115,22,.3);}
+    .level-badge.c4{color:var(--c4);border:2px solid var(--c4);box-shadow:0 0 25px rgba(255,77,106,.3);}
+    .level-badge.empty{color:var(--muted);border:2px solid var(--border);}
+    .level-sub{font-size:.78rem;color:var(--muted);margin-top:.5rem;text-align:center;}
+    .conf-pct{
+      font-size:.7rem;color:var(--accent);margin-top:.3rem;
+      font-family:'JetBrains Mono',monospace;
+    }
+
+    /* ──── Modality Pills ───────────────────────────── */
+    .modality-pills{display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap;justify-content:center;}
+    .m-pill{
+      display:flex;align-items:center;gap:.35rem;
+      padding:.25rem .7rem;border-radius:20px;font-size:.7rem;font-weight:600;
+      background:rgba(0,0,0,0.3);border:1px solid;
+    }
+    .m-pill.eeg{color:var(--accent);border-color:rgba(79,158,255,0.4);}
+    .m-pill.ecg{color:var(--c4);border-color:rgba(255,77,106,0.4);}
+
+    /* ──── Intervention ──────────────────────────────── */
+    .int-card{
+      border-radius:12px;padding:1.1rem 1.2rem;
+      border:1px solid var(--border);
+      position:relative;overflow:hidden;
+      background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));
+    }
+    .int-card::before{
+      content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+      background:currentColor;opacity:.5;border-radius:0 2px 2px 0;
+    }
+    .int-card.c0{color:var(--c0);}
+    .int-card.c1{color:var(--c1);}
+    .int-card.c2{color:var(--c2);}
+    .int-card.c3{color:var(--c3);}
+    .int-card.c4{color:var(--c4);}
+    .int-card .int-icon{font-size:1.6rem;margin-bottom:.5rem;}
+    .int-card h4{font-size:.88rem;font-weight:700;color:#fff;margin-bottom:.35rem;}
+    .int-card p{font-size:.78rem;color:var(--muted);line-height:1.65;}
+    .int-card.hidden{display:none;}
+
+    /* ──── Charts row ────────────────────────────────── */
+    .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:1.25rem;}
+
+    /* ──── Signal Strip ──────────────────────────────── */
+    .signal-strip{
+      display:flex;gap:2px;align-items:center;
+      height:28px;overflow:hidden;border-radius:4px;
+      margin-bottom:1rem;
+    }
+    .sig-bar{
+      flex:1;border-radius:2px;
+      background:linear-gradient(to top,var(--accent),var(--accent2));
+      opacity:.5;transition:height .3s;
+    }
+
+    /* ──── Toast ─────────────────────────────────────── */
+    #toast{
+      position:fixed;bottom:2rem;right:2rem;z-index:999;
+      padding:.85rem 1.5rem;border-radius:12px;font-size:.82rem;font-weight:600;
+      backdrop-filter:blur(20px);border:1px solid;
+      opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none;
+    }
+    #toast.show{opacity:1;transform:translateY(0);}
+    #toast.success{background:rgba(0,229,200,.12);border-color:rgba(0,229,200,.4);color:var(--c1);}
+    #toast.error{background:rgba(255,77,106,.12);border-color:rgba(255,77,106,.4);color:var(--c4);}
+
+    /* ──── Info chips ────────────────────────────────── */
+    .chip-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.25rem;}
+    .chip{
+      padding:.25rem .75rem;border-radius:20px;font-size:.7rem;font-weight:600;
+      background:rgba(79,158,255,0.08);border:1px solid rgba(79,158,255,0.2);color:var(--accent);
+    }
+
+    /* ──── Stress Management ────────────────────────── */
+    .management-grid{
+      display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1rem;
+    }
+    .management-card{
+      background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));
+      border:1px solid var(--border);border-radius:12px;padding:1.25rem;
+      position:relative;overflow:hidden;
+    }
+    .management-card::before{
+      content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+      background:linear-gradient(180deg,var(--accent),var(--accent2));
+      border-radius:0 2px 2px 0;
+    }
+    .management-card h4{
+      font-size:.95rem;font-weight:700;color:#fff;margin-bottom:.75rem;
+      display:flex;align-items:center;gap:.5rem;
+    }
+    .management-card.full-width{grid-column:1/-1;}
+    .management-text{
+      font-size:.85rem;color:var(--muted);line-height:1.6;
+      margin-bottom:.5rem;
+    }
+    .interventions-container{
+      display:grid;gap:1rem;
+    }
+    .intervention-item{
+      background:linear-gradient(135deg,rgba(79,158,255,0.08),rgba(0,229,200,0.05));
+      border:1px solid rgba(79,158,255,0.2);border-radius:10px;padding:1rem;
+      transition:all .3s;
+    }
+    .intervention-item:hover{
+      border-color:var(--accent);box-shadow:0 0 20px rgba(79,158,255,0.2);
+      transform:translateY(-2px);
+    }
+    .intervention-header{
+      display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem;
+    }
+    .intervention-icon{
+      width:32px;height:32px;border-radius:8px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      display:flex;align-items:center;justify-content:center;
+      font-size:16px;border:1px solid rgba(255,255,255,0.2);
+    }
+    .intervention-title{
+      font-size:.9rem;font-weight:700;color:#fff;margin:0;
+    }
+    .intervention-meta{
+      font-size:.75rem;color:var(--accent2);font-weight:600;
+      margin-bottom:.5rem;
+    }
+    .intervention-steps{
+      font-size:.8rem;color:var(--muted);line-height:1.6;
+      margin-bottom:.5rem;
+    }
+    .intervention-duration{
+      font-size:.75rem;color:var(--accent);font-family:'JetBrains Mono',monospace;
+      font-weight:600;
+    }
+  </style>
+</head>
+<body>
+<div class="bg-layer"><div class="bg-grid"></div><div class="zen-elements"><div class="zen-element"></div><div class="zen-element"></div><div class="zen-element"></div></div></div>
+<canvas class="eeg-banner" id="eegBanner"></canvas>
+
+<div class="page">
+<!-- ── Header ──────────────────────────────── -->
+<header>
+  <div class="logo">
+    <div class="brain-icon">�</div>
+    <div class="logo-text">
+        <h1>MindfulStress Hub</h1>
+        <p>AI Mindfulness · Stress Analysis · Personalized Interventions</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><div class="pulse-dot"></div>API Live</div>
+  </div>
+</header>
+
+<!-- ── EEG Live Bar ─────────────────────────── -->
+<div class="eeg-hero">
+  <span class="eeg-label">🧬 Live Channel Preview</span>
+  <div class="eeg-live-bars" id="heroBars"></div>
+  <div class="channel-labels">
+    <div class="channel-tag"><div class="channel-dot" style="background:var(--accent)"></div>θ Theta 4–8Hz</div>
+    <div class="channel-tag"><div class="channel-dot" style="background:var(--accent2)"></div>α Alpha 8–13Hz</div>
+    <div class="channel-tag"><div class="channel-dot" style="background:var(--c3)"></div>β Beta 13–30Hz</div>
+    <div class="channel-tag"><div class="channel-dot" style="background:var(--c2)"></div>ECG/HRV</div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ── Upload ─────────────────────────────── -->
+  <div class="card mb2">
+    <div class="sec-title">Input Signal Data</div>
+    <div class="section-sub">Load a 101-feature JSON file extracted from EEG + ECG recordings</div>
+
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" accept=".json" id="fileInput" onchange="handleFileUpload(event)"/>
+      <div class="upload-icon-wrap">📂</div>
+      <div class="upload-title">Drop or Browse JSON File</div>
+      <div class="upload-hint">
+        File must contain exactly <strong>101 features</strong> (97 EEG band powers + 4 ECG/HRV).<br>
+        Test samples are in the <code>test_samples/</code> folder —
+        <code>low_stress_sample.json</code> · <code>mild_stress_sample.json</code> · <code>high_stress_sample.json</code>
+      </div>
+    </div>
+    <div id="fileNameDisplay">✅ <span id="fileNameText"></span></div>
+  </div>
+
+  <!-- ── Signal Input ───────────────────────── -->
+  <div class="card mb2">
+    <div class="sec-title">Signal Input (101 Features)</div>
+
+    <div class="signal-strip" id="signalStrip">
+      <!-- Filled by JS -->
+    </div>
+
+    <div class="input-tabs">
+      <button class="tab-btn active" id="tab-json"   onclick="switchTab('json')">📋 JSON Paste</button>
+      <button class="tab-btn"        id="tab-fields" onclick="switchTab('fields')">🔢 Feature Fields</button>
+    </div>
+
+    <div id="panel-json">
+      <textarea id="jsonPasteArea" placeholder='{"features": [0.12, 0.65, ...]}'></textarea>
+    </div>
+    <div id="panel-fields" class="hidden">
+      <div class="feature-grid" id="featureGrid"></div>
+    </div>
+
+    <div class="row mt1">
+      <button class="btn btn-predict flex-c" id="predictBtn" onclick="runPredict()">
+        <div class="spinner" id="spinPredict"></div>
+        <span>▶ Predict Stress Level</span>
+      </button>
+      <button class="btn btn-explain flex-c" id="explainBtn" onclick="runExplain()">
+        <div class="spinner" id="spinExplain"></div>
+        <span>🔍 Predict + Explain</span>
+      </button>
+      <button class="btn btn-secondary" onclick="clearAll()">✕ Clear</button>
+    </div>
+  </div>
+
+  <!-- ── Results ────────────────────────────── -->
+  <div id="resultsSection" class="hidden">
+    <div class="section-title-lg" style="margin-bottom:1rem">Analysis Results</div>
+
+    <div class="results-grid">
+
+      <!-- Class Probability Chart -->
+      <div class="card">
+        <div class="sec-title">Class Probabilities</div>
+        <canvas id="classProbChart" height="190"></canvas>
+      </div>
+
+      <!-- Level Badge -->
+      <div class="card level-display">
+        <div class="sec-title" style="justify-content:center;">Predicted Stress Level</div>
+        <div class="level-badge empty" id="levelBadge">—</div>
+        <div class="level-sub"         id="levelSub">Awaiting prediction</div>
+        <div class="conf-pct"          id="confPct"></div>
+        <div class="modality-pills" id="modalityPills" style="display:none">
+          <div class="m-pill eeg">🧠 EEG 97 ch</div>
+          <div class="m-pill ecg">❤ ECG 4 feat</div>
+        </div>
+      </div>
+
+      <!-- Intervention -->
+      <div class="card">
+        <div class="sec-title">Recommended Intervention</div>
+        <div class="int-card hidden c0" id="int-0">
+          <div class="int-icon">😌</div>
+          <h4>Excellent Baseline State</h4>
+          <p>EEG shows dominant alpha activity and low sympathetic arousal. Your brain is in an ideal resting state. Sustain this with light breaks and mindful breathing.</p>
+        </div>
+        <div class="int-card hidden c1" id="int-1">
+          <div class="int-icon">✅</div>
+          <h4>No Intervention Required</h4>
+          <p>Stress is within normal range. Alpha/theta balance is healthy. Continue your current activity — no action needed.</p>
+        </div>
+        <div class="int-card hidden c2" id="int-2">
+          <div class="int-icon">🌿</div>
+          <h4>Grounding Technique</h4>
+          <p>5-4-3-2-1 Method: Name <strong>5</strong> things you see, <strong>4</strong> you can touch, <strong>3</strong> you hear, <strong>2</strong> you smell, <strong>1</strong> you taste. Resets cortical arousal and lowers beta power.</p>
+        </div>
+        <div class="int-card hidden c3" id="int-3">
+          <div class="int-icon">🫁</div>
+          <h4>Box Breathing Protocol</h4>
+          <p><strong>Inhale 4s → Hold 4s → Exhale 4s → Hold 4s.</strong> Repeat 4–5 cycles. Activates the parasympathetic system, lowers LF/HF ratio and suppresses cortisol response.</p>
+        </div>
+        <div class="int-card hidden c4" id="int-4">
+          <div class="int-icon">🚨</div>
+          <h4>Immediate Relief Required</h4>
+          <p><strong>Stop current task.</strong> Cold stimulus: splash cold water on wrists. Then 4-7-8 breathing (Inhale 4s, hold 7s, exhale 8s × 3). EEG shows acute beta + theta surge — seek a calm environment immediately.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Explain Charts -->
+    <div id="explainSection" class="hidden">
+      <div class="charts-row">
+        <div class="card">
+          <div class="sec-title">Modality Attention Weights</div>
+          <canvas id="attentionChart" height="200"></canvas>
+          <p style="font-size:.72rem;color:var(--muted);margin-top:.75rem;">How much the [CLS] token attends to each modality in the final Transformer layer.</p>
+        </div>
+        <div class="card">
+          <div class="sec-title">Top 10 Feature Importances</div>
+          <canvas id="shapChart" height="200"></canvas>
+          <p style="font-size:.72rem;color:var(--muted);margin-top:.75rem;">Permutation-based feature impact — higher = greater influence on this prediction.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Stress Management Plan ────────────────────────────── -->
+  <div id="managementSection" class="hidden">
+    <div class="section-title-lg" style="margin-bottom:1rem">🧘 Personalized Stress Management Plan</div>
+
+    <div class="card mb2">
+      <div class="sec-title">AI-Generated Intervention Plan</div>
+      <div class="section-sub">Evidence-based techniques from CBT, MBSR, WHO, and NIH guidelines</div>
+
+      <div class="row mt1">
+        <button class="btn btn-predict flex-c" id="managementBtn" onclick="generateManagementPlan()" disabled>
+          <div class="spinner" id="spinManagement"></div>
+          <span>🧘 Generate Management Plan</span>
+        </button>
+      </div>
+
+      <div id="managementContent" class="hidden" style="margin-top:1.5rem;">
+        <!-- Management plan will be populated here -->
+        <div class="management-grid">
+          <div class="management-card">
+            <h4>🎯 Stress Level & Cause</h4>
+            <div id="stressLevelDisplay" class="management-text"></div>
+            <div id="causeDisplay" class="management-text"></div>
+          </div>
+
+          <div class="management-card">
+            <h4>🧠 Physiological Interpretation</h4>
+            <div id="physioDisplay" class="management-text"></div>
+          </div>
+
+          <div class="management-card full-width">
+            <h4>🛠️ Recommended Interventions</h4>
+            <div id="interventionsList" class="interventions-container"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div><!-- .page -->
+
+<div id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// Constants
+// ─────────────────────────────────────────────
+const CLASS_NAMES  = ['Very Low','Low','Moderate','High','Very High'];
+const CLASS_COLORS = ['#38bdf8','#00e5c8','#fbbf24','#f97316','#ff4d6a'];
+const CLASS_SUBTEXT= [
+  '😌 Very relaxed EEG baseline — excellent state',
+  '✅ Normal physiological state — no concern',
+  '🔶 Moderate sympathetic activation detected',
+  '⚠ Elevated beta power & HRV imbalance — take a break',
+  '🚨 Acute stress pattern — immediate action recommended'
+];
+const FEATURE_NAMES=(() => {
+  const n=[];
+  ['Theta','Alpha','Beta'].forEach(b=>{for(let i=0;i<32;i++) n.push(`EEG_Ch${i}_${b}`);});
+  n.push('Frontal_Alpha_Asym');
+  ['HR_Mean','SDNN','RMSSD','LF_HF_Ratio'].forEach(x=>n.push(x));
+  return n;
+})();
+const API_URL='http://127.0.0.1:8000';
+
+// ─────────────────────────────────────────────
+// Animated EEG Banner (bottom of screen)
+// ─────────────────────────────────────────────
+(function initBanner(){
+  const cv=document.getElementById('eegBanner');
+  const ctx=cv.getContext('2d');
+  let phases=Array.from({length:8},(_,i)=>Math.random()*Math.PI*2);
+  const freqs=[1.2,2.1,1.7,3.0,1.5,2.5,1.0,2.8];
+  const amps =[12, 18, 10, 22, 15, 9,  20, 13];
+  function resize(){cv.width=window.innerWidth;cv.height=80;}
+  resize(); window.addEventListener('resize',resize);
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ctx.lineWidth=1.5;
+    for(let w=0;w<8;w++){
+      ctx.beginPath();
+      ctx.strokeStyle=`hsla(${200+w*10},80%,70%,0.6)`;
+      for(let x=0;x<cv.width;x++){
+        const y=40+Math.sin(x*0.02*freqs[w]+phases[w])*amps[w];
+        x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+      phases[w]+=0.012*freqs[w];
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// Hero EEG bars animation
+(function initHeroBars(){
+  const cont=document.getElementById('heroBars');
+  if(!cont) return;
+  const N=60;
+  const bars=[];
+  for(let i=0;i<N;i++){
+    const b=document.createElement('div');
+    b.className='eeg-live-bar';
+    b.style.cssText=`height:4px;flex:1;border-radius:2px;background:linear-gradient(to top,#4f9eff,#00e5c8);opacity:0.6;transition:height .15s;`;
+    cont.appendChild(b); bars.push(b);
+  }
+  const phases=bars.map(()=>Math.random()*Math.PI*2);
+  const freqs=bars.map(()=>0.8+Math.random()*1.5);
+  const amps=bars.map(()=>8+Math.random()*20);
+  function animate(){
+    bars.forEach((b,i)=>{
+      const h=4+Math.max(0,(Math.sin(phases[i])*amps[i]));
+      b.style.height=h+'px';
+      phases[i]+=0.05*freqs[i];
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
+// Signal strip
+function updateSignalStrip(features) {
+  const strip = document.getElementById('signalStrip');
+  strip.innerHTML = '';
+  const slice = features.slice(32,64); // alpha band
+  const max = Math.max(...slice.map(Math.abs), 0.001);
+  const colors = ['#4f9eff','#00e5c8','#fbbf24','#f97316'];
+  slice.forEach((v, i) => {
+    const h = Math.max(4, Math.round((Math.abs(v)/max)*24));
+    const bar = document.createElement('div');
+    bar.className = 'sig-bar';
+    bar.style.cssText = `height:${h}px;background:${colors[i%4]};opacity:0.6;flex:1;border-radius:2px;`;
+    strip.appendChild(bar);
+  });
+}
+
+// ─────────────────────────────────────────────
+// Feature grid
+// ─────────────────────────────────────────────
+function buildFeatureGrid(){
+  const grid=document.getElementById('featureGrid');
+  grid.innerHTML='';
+  FEATURE_NAMES.forEach((name,i)=>{
+    const wrap=document.createElement('div');
+    wrap.className='feat-group';
+    wrap.innerHTML=`
+      <div class="feature-label" title="${name}">${name.length>10?name.slice(0,9)+'…':name}</div>
+      <input class="feature-input" type="number" id="f${i}" value="0" step="0.001"/>
+    `;
+    grid.appendChild(wrap);
+  });
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  document.getElementById('panel-json').classList.toggle('hidden',tab!=='json');
+  document.getElementById('panel-fields').classList.toggle('hidden',tab!=='fields');
+}
+
+// ─────────────────────────────────────────────
+// File Upload
+// ─────────────────────────────────────────────
+function handleFileUpload(event){
+  const file=event.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const obj=JSON.parse(e.target.result);
+      const feats=obj.features||obj;
+      if(!Array.isArray(feats)||feats.length!==101){
+        showToast(`⚠ Expected 101 features (got ${Array.isArray(feats)?feats.length:'?'})`, 'error');
+        return;
+      }
+      document.getElementById('jsonPasteArea').value=JSON.stringify({features:feats},null,2);
+      feats.forEach((v,i)=>{const el=document.getElementById(`f${i}`);if(el) el.value=v;});
+      updateSignalStrip(feats);
+      const disp=document.getElementById('fileNameDisplay');
+      document.getElementById('fileNameText').textContent=file.name+' — 101 features ready';
+      disp.style.display='flex';
+      showToast(`✅ ${file.name} loaded`,'success');
+    }catch(err){showToast('❌ Invalid JSON: '+err.message,'error');}
+  };
+  reader.readAsText(file);
+}
+
+// ─────────────────────────────────────────────
+// Feature getter
+// ─────────────────────────────────────────────
+function getFeatures(){
+  const txt=document.getElementById('jsonPasteArea').value.trim();
+  if(txt){
+    const obj=JSON.parse(txt);
+    const feats=obj.features||obj;
+    if(!Array.isArray(feats)||feats.length!==101) throw new Error(`Expected 101 features, got ${Array.isArray(feats)?feats.length:'?'}`);
+    return feats.map(Number);
+  }
+  return FEATURE_NAMES.map((_,i)=>parseFloat(document.getElementById(`f${i}`).value)||0);
+}
+
+function setLoading(btn,spin,on){
+  document.getElementById(btn).disabled=on;
+  document.getElementById(spin).style.display=on?'block':'none';
+}
+
+// ─────────────────────────────────────────────
+// Charts
+// ─────────────────────────────────────────────
+let classProbChart=null,attentionChart=null,shapChart=null;
+
+function renderClassProbChart(probs){
+  const ctx=document.getElementById('classProbChart').getContext('2d');
+  if(classProbChart) classProbChart.destroy();
+  classProbChart=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:CLASS_NAMES,
+      datasets:[{
+        data:probs,
+        backgroundColor:CLASS_COLORS.map(c=>c+'99'),
+        borderColor:CLASS_COLORS,
+        borderWidth:1.5,borderRadius:8
+      }]
+    },
+    options:{
+      responsive:true,animation:{duration:800,easing:'easeOutQuart'},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>`${(v.parsed.y*100).toFixed(1)}%`}}},
+      scales:{
+        y:{beginAtZero:true,max:1,grid:{color:'rgba(99,179,237,0.07)'},ticks:{color:'#4a6fa5',font:{size:10},callback:v=>(v*100)+'%'}},
+        x:{grid:{display:false},ticks:{color:'#7ca5d6',font:{size:10}}}
+      }
+    }
+  });
+}
+
+function renderExplainCharts(data){
+  document.getElementById('explainSection').classList.remove('hidden');
+  const attn=data.attention_weights;
+  const attCtx=document.getElementById('attentionChart').getContext('2d');
+  if(attentionChart) attentionChart.destroy();
+  attentionChart=new Chart(attCtx,{
+    type:'bar',
+    data:{
+      labels:['Self [CLS]','EEG (Brain)','ECG (Heart)'],
+      datasets:[{
+        data:[attn.self_cls,attn.eeg_attention,attn.ecg_attention],
+        backgroundColor:['rgba(79,158,255,.65)','rgba(0,229,200,.65)','rgba(255,77,106,.65)'],
+        borderColor:['#4f9eff','#00e5c8','#ff4d6a'],
+        borderWidth:1.5,borderRadius:8
+      }]
+    },
+    options:{responsive:true,animation:{duration:600},plugins:{legend:{display:false}},
+      scales:{
+        y:{beginAtZero:true,max:1,grid:{color:'rgba(99,179,237,0.07)'},ticks:{color:'#4a6fa5',font:{size:11}}},
+        x:{grid:{display:false},ticks:{color:'#7ca5d6',font:{size:11}}}
+      }}
+  });
+
+  if(!data.shap_values) return;
+  const sorted=Object.entries(data.shap_values).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const shapCtx=document.getElementById('shapChart').getContext('2d');
+  if(shapChart) shapChart.destroy();
+  shapChart=new Chart(shapCtx,{
+    type:'bar',
+    data:{
+      labels:sorted.map(([k])=>k),
+      datasets:[{
+        data:sorted.map(([,v])=>v),
+        backgroundColor:sorted.map(([k])=>k.startsWith('EEG')?'rgba(79,158,255,.65)':'rgba(249,115,22,.65)'),
+        borderColor:sorted.map(([k])=>k.startsWith('EEG')?'#4f9eff':'#f97316'),
+        borderWidth:1.5,borderRadius:5
+      }]
+    },
+    options:{indexAxis:'y',responsive:true,animation:{duration:600},plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:'rgba(99,179,237,0.07)'},ticks:{color:'#4a6fa5',font:{size:10}}},
+        y:{grid:{display:false},ticks:{color:'#7ca5d6',font:{size:10,family:'JetBrains Mono'}}}
+      }}
+  });
+}
+
+// ─────────────────────────────────────────────
+// Show Results
+// ─────────────────────────────────────────────
+function showResults(data){
+  document.getElementById('resultsSection').classList.remove('hidden');
+  const cls=data.stress_class, level=data.stress_level;
+  const prob=data.stress_probability, probs=data.class_probabilities;
+
+  renderClassProbChart(probs);
+
+  const badge=document.getElementById('levelBadge');
+  badge.className=`level-badge c${cls}`;
+  badge.textContent=level;
+  document.getElementById('levelSub').textContent=CLASS_SUBTEXT[cls];
+  document.getElementById('confPct').textContent=`Confidence: ${(prob*100).toFixed(1)}%`;
+  document.getElementById('modalityPills').style.display='flex';
+
+  for(let i=0;i<5;i++) document.getElementById(`int-${i}`).classList.add('hidden');
+  document.getElementById(`int-${cls}`).classList.remove('hidden');
+
+  document.getElementById('managementBtn').disabled = false;
+  document.getElementById('resultsSection').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ─────────────────────────────────────────────
+// API Calls
+// ─────────────────────────────────────────────
+async function runPredict(){
+  let features; try{features=getFeatures();}catch(e){showToast('⚠ '+e.message,'error');return;}
+  setLoading('predictBtn','spinPredict',true);
+  try{
+    const res=await fetch(`${API_URL}/predict`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({features})});
+    if(!res.ok){const d=await res.json();throw new Error(d.detail||'API error');}
+    const data=await res.json();
+    document.getElementById('explainSection').classList.add('hidden');
+    showResults(data);
+    showToast('✅ Prediction complete','success');
+  }catch(e){showToast('❌ '+e.message,'error');}
+  finally{setLoading('predictBtn','spinPredict',false);}
+}
+
+async function runExplain(){
+  let features; try{features=getFeatures();}catch(e){showToast('⚠ '+e.message,'error');return;}
+  setLoading('explainBtn','spinExplain',true);
+  try{
+    const res=await fetch(`${API_URL}/explain`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({features})});
+    if(!res.ok){const d=await res.json();throw new Error(d.detail||'API error');}
+    const data=await res.json();
+    showResults(data);
+    renderExplainCharts(data);
+    showToast('✅ Explanation ready','success');
+  }catch(e){showToast('❌ '+e.message,'error');}
+  finally{setLoading('explainBtn','spinExplain',false);}
+}
+
+async function generateManagementPlan(){
+  // Get current prediction results
+  const levelBadge = document.getElementById('levelBadge');
+  if(levelBadge.classList.contains('empty') || levelBadge.textContent === '—'){
+    showToast('⚠ Please run a prediction first','error');
+    return;
+  }
+
+  // Extract current analysis data
+  const stressLevel = levelBadge.textContent.toLowerCase().replace(' ', '_');
+  const confText = document.getElementById('confPct').textContent;
+  const stressProbability = parseFloat(confText.replace('Confidence: ', '').replace('%', '')) / 100;
+
+  // Get SHAP values from the chart if available
+  let topShapFeatures = ['lf_hf_ratio', 'beta_power', 'heart_rate']; // Default
+  if(shapChart && shapChart.data && shapChart.data.labels){
+    topShapFeatures = shapChart.data.labels.slice(0, 5);
+  }
+
+  // Mock physiological metrics (in real implementation, extract from features)
+  const physiologicalMetrics = {
+    "lf_hf_ratio": 2.1 + Math.random() * 0.5,
+    "beta_power": 12.0 + Math.random() * 8.0,
+    "heart_rate": 70 + Math.random() * 30,
+    "faa": -0.3 + Math.random() * 0.6
+  };
+
+  // Get all features
+  let allFeatures;
+  try{
+    allFeatures = getFeatures();
+  }catch(e){
+    showToast('⚠ Could not get features: '+e.message,'error');
+    return;
+  }
+
+  // Convert features array to dict
+  const allFeaturesDict = {};
+  FEATURE_NAMES.forEach((name, i) => {
+    allFeaturesDict[name] = allFeatures[i];
+  });
+
+  setLoading('managementBtn','spinManagement',true);
+
+  try{
+    const payload = {
+      stress_level: stressLevel,
+      stress_probability: stressProbability,
+      shap_features: topShapFeatures,
+      physiological_metrics: physiologicalMetrics,
+      all_features: allFeaturesDict
+    };
+
+    const res = await fetch(`${API_URL}/stress-management`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+
+    if(!res.ok){
+      const errorData = await res.json();
+      throw new Error(errorData.detail || 'Management plan generation failed');
+    }
+
+    const data = await res.json();
+
+    // Display the management plan
+    displayManagementPlan(data);
+
+    document.getElementById('managementSection').classList.remove('hidden');
+    document.getElementById('managementContent').classList.remove('hidden');
+
+    showToast('✅ Management plan generated successfully','success');
+
+  }catch(e){
+    showToast('❌ '+e.message,'error');
+  }finally{
+    setLoading('managementBtn','spinManagement',false);
+  }
+}
+
+function displayManagementPlan(data){
+  // Update stress level and cause
+  document.getElementById('stressLevelDisplay').textContent = `Stress Level: ${data.stress_level.toUpperCase()}`;
+  document.getElementById('causeDisplay').textContent = data.cause;
+
+  // Update physiological interpretation
+  document.getElementById('physioDisplay').textContent = data.physiological_interpretation;
+
+  // Update interventions list
+  const interventionsContainer = document.getElementById('interventionsList');
+  interventionsContainer.innerHTML = '';
+
+  data.recommended_actions.forEach((action, index) => {
+    const interventionDiv = document.createElement('div');
+    interventionDiv.className = 'intervention-item';
+
+    interventionDiv.innerHTML = `
+      <div class="intervention-header">
+        <div class="intervention-icon">${getInterventionIcon(index)}</div>
+        <h5 class="intervention-title">${action.technique}</h5>
+      </div>
+      <div class="intervention-meta">Duration: ${action.duration}</div>
+      <div class="intervention-steps">${action.steps}</div>
+    `;
+
+    interventionsContainer.appendChild(interventionDiv);
+  });
+}
+
+function getInterventionIcon(index){
+  const icons = ['🧘', '🫁', '🌊', '🌱', '💭', '🏃', '🤝', '⏰'];
+  return icons[index % icons.length];
+}
+
+function clearAll(){
+  document.getElementById('jsonPasteArea').value='';
+  FEATURE_NAMES.forEach((_,i)=>{const el=document.getElementById(`f${i}`);if(el) el.value='0';});
+  document.getElementById('resultsSection').classList.add('hidden');
+  document.getElementById('managementSection').classList.add('hidden');
+  document.getElementById('fileNameDisplay').style.display='none';
+  document.getElementById('fileInput').value='';
+  document.getElementById('managementBtn').disabled = true;
+  document.getElementById('signalStrip').innerHTML='';
+}
+
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`show ${type}`;
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>t.className='',3200);
+}
+
+document.addEventListener('DOMContentLoaded',()=>{buildFeatureGrid();});
+</script>
+</body>
+</html>

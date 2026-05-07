@@ -1,0 +1,115 @@
+[
+  {
+    "technique_name": "Deep Breathing Exercise",
+    "description": "A mindfulness-based technique from MBSR that involves slow, deep breaths to activate the parasympathetic nervous system, reducing stress hormones and promoting relaxation.",
+    "applicable_conditions": ["high LF/HF ratio", "acute anxiety", "cognitive overload"],
+    "stress_level_mapping": ["moderate", "high", "very_high"],
+    "duration": "5-10 minutes",
+    "steps_to_perform": [
+      "Find a quiet, comfortable place to sit or lie down.",
+      "Place one hand on your chest and the other on your abdomen.",
+      "Inhale slowly through your nose for a count of 4, ensuring your abdomen rises more than your chest.",
+      "Hold your breath for a count of 4.",
+      "Exhale slowly through your mouth for a count of 6, feeling your abdomen fall.",
+      "Repeat for 5-10 cycles, focusing on the breath."
+    ]
+  },
+  {
+    "technique_name": "Progressive Muscle Relaxation",
+    "description": "A CBT technique that systematically tenses and relaxes muscle groups to reduce physical tension and mental stress, based on NIH recommendations for stress management.",
+    "applicable_conditions": ["muscle tension", "chronic stress", "insomnia"],
+    "stress_level_mapping": ["low", "moderate", "high"],
+    "duration": "10-15 minutes",
+    "steps_to_perform": [
+      "Lie down or sit comfortably in a quiet space.",
+      "Start with your feet: Tense the muscles for 5 seconds, then release.",
+      "Move up to your calves, thighs, abdomen, chest, arms, hands, neck, and face, repeating the tense-and-release cycle.",
+      "Focus on the sensation of relaxation in each muscle group.",
+      "Breathe deeply throughout the process."
+    ]
+  },
+  {
+    "technique_name": "Cognitive Restructuring",
+    "description": "A core CBT method to identify and challenge negative thought patterns, replacing them with balanced alternatives, supported by WHO mental health guidelines.",
+    "applicable_conditions": ["negative thinking", "cognitive overload", "depression"],
+    "stress_level_mapping": ["moderate", "high", "very_high"],
+    "duration": "15-30 minutes",
+    "steps_to_perform": [
+      "Identify a stressful thought or situation.",
+      "Write down the automatic negative thought.",
+      "Evaluate the evidence for and against this thought.",
+      "Generate a balanced, alternative thought.",
+      "Practice replacing the negative thought with the balanced one in similar situations."
+    ]
+  },
+  {
+    "technique_name": "Mindfulness Meditation",
+    "description": "From MBSR, this practice involves focusing on the present moment without judgment, reducing rumination and improving emotional regulation, as per NIH studies.",
+    "applicable_conditions": ["rumination", "emotional dysregulation", "chronic stress"],
+    "stress_level_mapping": ["low", "moderate", "high"],
+    "duration": "10-20 minutes",
+    "steps_to_perform": [
+      "Sit comfortably with your back straight.",
+      "Close your eyes and focus on your breath.",
+      "When your mind wanders, gently bring it back to the breath without judgment.",
+      "Observe thoughts and feelings as they arise, letting them pass like clouds.",
+      "End by slowly opening your eyes and noticing your surroundings."
+    ]
+  },
+  {
+    "technique_name": "Guided Imagery",
+    "description": "A CBT technique using visualization to create calming mental images, lowering stress responses, endorsed by WHO for stress reduction.",
+    "applicable_conditions": ["anxiety", "performance stress", "sleep issues"],
+    "stress_level_mapping": ["moderate", "high"],
+    "duration": "10-15 minutes",
+    "steps_to_perform": [
+      "Find a quiet place and get comfortable.",
+      "Close your eyes and take a few deep breaths.",
+      "Imagine a peaceful scene, such as a beach or forest.",
+      "Engage all senses: feel the warmth, hear the sounds, smell the scents.",
+      "Stay in the imagery for several minutes, then slowly return to the present."
+    ]
+  },
+  {
+    "technique_name": "Physical Exercise",
+    "description": "Regular aerobic exercise releases endorphins and reduces cortisol levels, recommended by NIH and WHO for managing stress and improving mental health.",
+    "applicable_conditions": ["sedentary lifestyle", "chronic stress", "mild depression"],
+    "stress_level_mapping": ["low", "moderate", "high"],
+    "duration": "30-60 minutes",
+    "steps_to_perform": [
+      "Choose an activity you enjoy, like walking, jogging, or yoga.",
+      "Start with a 5-minute warm-up.",
+      "Engage in moderate-intensity exercise for the main duration.",
+      "Cool down with stretching.",
+      "Aim for at least 150 minutes per week as per guidelines."
+    ]
+  },
+  {
+    "technique_name": "Social Support Seeking",
+    "description": "Building and utilizing social connections for emotional support, a key factor in stress resilience according to WHO mental health strategies.",
+    "applicable_conditions": ["isolation", "relationship stress", "major life changes"],
+    "stress_level_mapping": ["moderate", "high", "very_high"],
+    "duration": "Varies (ongoing)",
+    "steps_to_perform": [
+      "Identify trusted friends, family, or support groups.",
+      "Reach out to share your feelings and concerns.",
+      "Listen actively to others' advice and perspectives.",
+      "Participate in social activities regularly.",
+      "Consider professional help if needed, like counseling."
+    ]
+  },
+  {
+    "technique_name": "Time Management Planning",
+    "description": "CBT-based technique to organize tasks and reduce overwhelm, helping manage cognitive load as per NIH research on stress prevention.",
+    "applicable_conditions": ["cognitive overload", "procrastination", "work stress"],
+    "stress_level_mapping": ["low", "moderate", "high"],
+    "duration": "15-30 minutes daily",
+    "steps_to_perform": [
+      "List all tasks and deadlines.",
+      "Prioritize tasks using a matrix (urgent/important).",
+      "Break large tasks into smaller steps.",
+      "Schedule specific times for tasks and breaks.",
+      "Review and adjust the plan regularly."
+    ]
+  }
+]
