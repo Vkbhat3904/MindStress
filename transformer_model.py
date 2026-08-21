@@ -14,13 +14,7 @@ class MultimodalTransformerEncoder(nn.Module):
                  dropout: float = 0.3,
                  num_classes: int = 2,
                  use_logits: bool = False):
-        """
-        Multimodal classifier for stress prediction using EEG and ECG features.
 
-        The original transformer-style model collapsed on the 5-class task, so this
-        implementation uses a stronger direct feature-based classifier while
-        preserving the same public interface and compatible attention return values.
-        """
         super().__init__()
         self.num_classes = num_classes
         self.use_logits = use_logits
